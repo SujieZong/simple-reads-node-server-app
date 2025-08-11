@@ -12,7 +12,7 @@ export default [
     categories: ["Science Fiction", "Chinese Literature"],
     pageCount: 384,
     language: "zh-CN",
-    createdAt: new Date("2024-01-20T10:00:00Z"),
+    
   },
   {
     _id: "book002",
@@ -27,7 +27,6 @@ export default [
     categories: ["Psychological thriller", "Mystery"],
     pageCount: 336,
     language: "en",
-    createdAt: new Date("2024-01-22T14:30:00Z"),
   },
   {
     _id: "book003",
@@ -42,7 +41,6 @@ export default [
     categories: ["Coming-of-age fiction", "American literature"],
     pageCount: 214,
     language: "en",
-    createdAt: new Date("2024-02-01T09:15:00Z"),
   },
   {
     _id: "book004",
@@ -57,7 +55,6 @@ export default [
     categories: ["Classic literature", "American literature"],
     pageCount: 281,
     language: "en",
-    createdAt: new Date("2024-02-05T16:45:00Z"),
   },
   {
     _id: "book005",
@@ -72,7 +69,6 @@ export default [
     categories: ["Science fiction", "Space opera"],
     pageCount: 688,
     language: "en",
-    createdAt: new Date("2024-02-10T11:20:00Z"),
   },
   {
     _id: "book006",
@@ -87,6 +83,5 @@ export default [
     categories: ["Dystopian fiction", "Political fiction"],
     pageCount: 328,
     language: "en",
-    createdAt: new Date("2024-02-15T13:10:00Z"),
   },
 ];

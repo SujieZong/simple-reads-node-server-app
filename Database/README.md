@@ -57,7 +57,7 @@
   categories: [String],  // 分类
   pageCount: Number,     // 页数
   language: String,      // 语言
-  createdAt: Date        // 添加到系统的时间
+  
 }
 ```
 

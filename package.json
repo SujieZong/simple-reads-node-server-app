@@ -1,0 +1,35 @@
+{"type": "module",
+  "name": "simplereads-node-server-app",
+  "version": "1.0.0",
+  "description": "webserver for simplereads",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SujieZong/simple-reads-node-server-app.git"
+  },
+  "keywords": [
+    "Node",
+    "REST",
+    "Server",
+    "HTTP",
+    "Web",
+    "Development",
+    "CS5610"
+  ],
+  "author": "Sujie Zong",
+  "license": "(ISC)",
+  "bugs": {
+    "url": "https://github.com/SujieZong/simple-reads-node-server-app/issues"
+  },
+  "homepage": "https://github.com/SujieZong/simple-reads-node-server-app#readme",
+  "dependencies": {
+    "express": "^5.1.0",
+    "uuid": "^11.1.0"
+
+  }
+  
+}

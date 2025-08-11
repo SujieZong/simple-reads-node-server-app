@@ -3,26 +3,30 @@
 ## 用户权限系统
 
 ### 用户类型
+
 1. **Reader (读者)**
-   - 可以CRUD自己的profile
-   - 可以CRUD自己的书评
+
+   - 可以 CRUD 自己的 profile
+   - 可以 CRUD 自己的书评
    - 可以收藏/取消收藏图书
    - 可以关注/取消关注其他用户
 
 2. **Writer (书评人)**
-   - 拥有Reader的全部权限
+
+   - 拥有 Reader 的全部权限
    - 书评和用户名在前端有专属标识（writerBadge: true）
-   - 拥有expertise字段标明专长领域
+   - 拥有 expertise 字段标明专长领域
 
 3. **Admin (管理员)**
-   - 拥有Writer的全部权限
-   - 可以CRUD所有用户的账号和profile
-   - 可以CRUD所有用户的评论
+   - 拥有 Writer 的全部权限
+   - 可以 CRUD 所有用户的账号和 profile
+   - 可以 CRUD 所有用户的评论
    - 拥有系统管理权限
 
 ## 数据模型
 
 ### 用户表 (Users)
+
 ```javascript
 {
   _id: String,           // 用户ID
@@ -40,6 +44,7 @@
 ```
 
 ### 图书表 (Books)
+
 ```javascript
 {
   _id: String,           // 内部书籍ID
@@ -57,6 +62,7 @@
 ```
 
 ### 书评表 (Reviews)
+
 ```javascript
 {
   _id: String,           // 书评ID
@@ -71,6 +77,7 @@
 ```
 
 ### 收藏表 (Favorites)
+
 ```javascript
 {
   _id: String,           // 收藏记录ID
@@ -81,6 +88,7 @@
 ```
 
 ### 关注表 (Follows)
+
 ```javascript
 {
   _id: String,           // 关注记录ID
@@ -93,22 +101,27 @@
 ## 数据关系
 
 ### 一对多关系
+
 - 一个用户 → 多个书评 (User -> Reviews)
 - 一本书 → 多个书评 (Book -> Reviews)
 
 ### 多对多关系
-- 用户 ↔ 图书 (通过Favorites表)
-- 用户 ↔ 用户 (通过Follows表)
+
+- 用户 ↔ 图书 (通过 Favorites 表)
+- 用户 ↔ 用户 (通过 Follows 表)
 
 ## 样本数据说明
 
 ### 用户数据
+
 - **Readers**: john_reader, alice_reader, emma_reader, lily_reader
-- **Writers**: mike_writer, sarah_writer, david_writer (拥有专长领域和writer标识)
+- **Writers**: mike_writer, sarah_writer, david_writer (拥有专长领域和 writer 标识)
 - **Admin**: admin_tom (系统管理员)
 
 ### 书籍数据
-包含6本经典书籍：
+
+包含 6 本经典书籍：
+
 1. 三体 (刘慈欣) - 中文科幻
 2. The Silent Patient - 心理悬疑
 3. The Catcher in the Rye - 经典文学
@@ -117,59 +130,73 @@
 6. 1984 - 反乌托邦小说
 
 ### 书评数据
-- 包含10条书评，涵盖不同用户对不同书籍的评价
-- Writer用户的书评更专业和详细
-- Reader用户的书评更贴近普通读者体验
+
+- 包含 10 条书评，涵盖不同用户对不同书籍的评价
+- Writer 用户的书评更专业和详细
+- Reader 用户的书评更贴近普通读者体验
 
 ### 关系数据
-- 收藏关系：用户收藏自己喜欢的书籍
-- 关注关系：Reader关注Writer，Writer之间互相关注
 
-## API接口权限
+- 收藏关系：用户收藏自己喜欢的书籍
+- 关注关系：Reader 关注 Writer，Writer 之间互相关注
+
+## API 接口权限
 
 ### 认证相关
+
 - POST /api/auth/register - 注册时选择用户角色
 - POST /api/auth/login - 登录验证
 - GET /api/auth/check - 检查登录状态
 
 ### 用户相关
+
 - GET /api/profile - 获取当前用户资料
 - PUT /api/profile - 更新自己的资料
 - GET /api/profile/:userId - 查看其他用户资料（公开信息）
-- DELETE /api/users/:userId - 删除用户（仅Admin）
+- DELETE /api/users/:userId - 删除用户（仅 Admin）
 
 ### 书评相关
+
 - POST /api/reviews - 发布书评（需登录）
 - GET /api/reviews/book/:bookId - 获取某书的所有书评
-- PUT /api/reviews/:reviewId - 更新书评（本人或Admin）
-- DELETE /api/reviews/:reviewId - 删除书评（本人或Admin）
+- PUT /api/reviews/:reviewId - 更新书评（本人或 Admin）
+- DELETE /api/reviews/:reviewId - 删除书评（本人或 Admin）
 
 ### 收藏和关注
+
 - POST/DELETE /api/favorites/:bookId - 收藏/取消收藏
 - POST/DELETE /api/follow/:userId - 关注/取消关注
 
 ## 使用说明
 
 1. 导入数据库模块：
+
 ```javascript
-import Database from './Database/index.js';
-import { getUserProfile, getBookDetails } from './Database/utils.js';
+import Database from "./Database/index.js";
+import { getUserProfile, getBookDetails } from "./Database/utils.js";
 ```
 
 2. 获取用户信息：
+
 ```javascript
-const userProfile = getUserProfile('user001');
+const userProfile = getUserProfile("user001");
 // 返回用户信息及统计数据
 ```
 
 3. 获取书籍详情：
+
 ```javascript
-const bookDetails = getBookDetails('book001');
+const bookDetails = getBookDetails("book001");
 // 返回书籍信息及相关书评
 ```
 
 4. 权限检查：
+
 ```javascript
-import { checkUserPermission } from './Database/utils.js';
-const canEdit = checkUserPermission(currentUserId, targetUserId, 'edit_own_profile');
+import { checkUserPermission } from "./Database/utils.js";
+const canEdit = checkUserPermission(
+  currentUserId,
+  targetUserId,
+  "edit_own_profile"
+);
 ```

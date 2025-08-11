@@ -1,63 +1,64 @@
-import Database from './index.js';
+import Database from "./index.js";
 
 // 用户相关操作
 export const findUserByUsername = (username) => {
-  return Database.users.find(user => user.username === username);
+  return Database.users.find((user) => user.username === username);
 };
 
 export const findUserById = (userId) => {
-  return Database.users.find(user => user._id === userId);
+  return Database.users.find((user) => user._id === userId);
 };
 
 export const findUsersByRole = (role) => {
-  return Database.users.filter(user => user.role === role);
+  return Database.users.filter((user) => user.role === role);
 };
 
 // 书籍相关操作
 export const findBookById = (bookId) => {
-  return Database.books.find(book => book._id === bookId);
+  return Database.books.find((book) => book._id === bookId);
 };
 
 export const findBookByGoogleId = (googleId) => {
-  return Database.books.find(book => book.googleId === googleId);
+  return Database.books.find((book) => book.googleId === googleId);
 };
 
 // 书评相关操作
 export const findReviewsByBookId = (bookId) => {
-  return Database.reviews.filter(review => review.book === bookId);
+  return Database.reviews.filter((review) => review.book === bookId);
 };
 
 export const findReviewsByUserId = (userId) => {
-  return Database.reviews.filter(review => review.user === userId);
+  return Database.reviews.filter((review) => review.user === userId);
 };
 
 export const findReviewById = (reviewId) => {
-  return Database.reviews.find(review => review._id === reviewId);
+  return Database.reviews.find((review) => review._id === reviewId);
 };
 
 // 收藏相关操作
 export const findFavoritesByUserId = (userId) => {
-  return Database.favorites.filter(favorite => favorite.user === userId);
+  return Database.favorites.filter((favorite) => favorite.user === userId);
 };
 
 export const findFavoriteByUserAndBook = (userId, bookId) => {
-  return Database.favorites.find(favorite => 
-    favorite.user === userId && favorite.book === bookId
+  return Database.favorites.find(
+    (favorite) => favorite.user === userId && favorite.book === bookId
   );
 };
 
 // 关注相关操作
 export const findFollowingByUserId = (userId) => {
-  return Database.follows.filter(follow => follow.follower === userId);
+  return Database.follows.filter((follow) => follow.follower === userId);
 };
 
 export const findFollowersByUserId = (userId) => {
-  return Database.follows.filter(follow => follow.following === userId);
+  return Database.follows.filter((follow) => follow.following === userId);
 };
 
 export const findFollowByUsers = (followerId, followingId) => {
-  return Database.follows.find(follow => 
-    follow.follower === followerId && follow.following === followingId
+  return Database.follows.find(
+    (follow) =>
+      follow.follower === followerId && follow.following === followingId
   );
 };
 
@@ -77,8 +78,8 @@ export const getUserProfile = (userId) => {
       reviewCount: reviews.length,
       favoriteCount: favorites.length,
       followingCount: following.length,
-      followerCount: followers.length
-    }
+      followerCount: followers.length,
+    },
   };
 };
 
@@ -88,22 +89,23 @@ export const getBookDetails = (bookId) => {
   if (!book) return null;
 
   const reviews = findReviewsByBookId(bookId);
-  const reviewsWithUsers = reviews.map(review => ({
+  const reviewsWithUsers = reviews.map((review) => ({
     ...review,
-    author: findUserById(review.user)
+    author: findUserById(review.user),
   }));
 
-  const averageRating = reviews.length > 0 
-    ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length 
-    : 0;
+  const averageRating =
+    reviews.length > 0
+      ? reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length
+      : 0;
 
   return {
     ...book,
     reviews: reviewsWithUsers,
     stats: {
       reviewCount: reviews.length,
-      averageRating: Math.round(averageRating * 10) / 10
-    }
+      averageRating: Math.round(averageRating * 10) / 10,
+    },
   };
 };
 
@@ -113,15 +115,15 @@ export const checkUserPermission = (currentUserId, targetUserId, action) => {
   if (!currentUser) return false;
 
   // Admin可以对所有用户执行所有操作
-  if (currentUser.role === 'admin') return true;
+  if (currentUser.role === "admin") return true;
 
   // 用户只能操作自己的资源
-  if (action === 'edit_own_profile' || action === 'delete_own_review') {
+  if (action === "edit_own_profile" || action === "delete_own_review") {
     return currentUserId === targetUserId;
   }
 
   // Writer可以编辑自己的内容
-  if (currentUser.role === 'writer' && action === 'edit_own_content') {
+  if (currentUser.role === "writer" && action === "edit_own_content") {
     return currentUserId === targetUserId;
   }
 

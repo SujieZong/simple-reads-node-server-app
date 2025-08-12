@@ -8,6 +8,7 @@ import UserRoutes from "./Users/routes.js";
 import ReviewRoutes from "./Reviews/routes.js";
 import FavoriteRoutes from "./Favorites/routes.js";
 import FollowRoutes from "./Follows/routes.js";
+import BookRoutes from "./Books/routes.js";
 
 const CONNECTION_STRING =
   process.env.MONGO_CONNECTION_STRING ||
@@ -45,6 +46,7 @@ UserRoutes(app);
 ReviewRoutes(app);
 FavoriteRoutes(app);
 FollowRoutes(app);
+BookRoutes(app);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {
@@ -52,5 +54,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.listen(process.env.PORT || 4000, () => {
-  console.log(`SimpleReads API server running on port ${process.env.PORT || 4000}`);
+  console.log(
+    `SimpleReads API server running on port ${process.env.PORT || 4000}`
+  );
 });

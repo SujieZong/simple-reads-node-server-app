@@ -117,9 +117,43 @@ export default function ReviewRoutes(app) {
     }
   };
 
+  // Get all reviews (admin only)
+  const getAllReviews = async (req, res) => {
+    try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser || currentUser.role !== "admin") {
+        return res.status(403).json({ message: "Admin access required" });
+      }
+
+      const reviews = await dao.findAllReviews();
+      res.json(reviews);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error fetching all reviews", error: error.message });
+    }
+  };
+
+  // Get reviews by user (for profile pages)
+  const getReviewsByUser = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const reviews = await dao.findReviewsByUser(userId);
+      res.json(reviews);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error fetching user reviews", error: error.message });
+    }
+  };
+
   // Routes
   app.post("/api/reviews", createReview);
   app.get("/api/reviews/book/:bookId", getReviewsForBook);
+  app.get("/api/reviews/user/:userId", getReviewsByUser);
   app.put("/api/reviews/:reviewId", updateReview);
   app.delete("/api/reviews/:reviewId", deleteReview);
+
+  // Admin routes
+  app.get("/api/admin/reviews", getAllReviews);
 }

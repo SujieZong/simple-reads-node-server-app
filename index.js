@@ -9,6 +9,7 @@ import ReviewRoutes from "./Reviews/routes.js";
 import FavoriteRoutes from "./Favorites/routes.js";
 import FollowRoutes from "./Follows/routes.js";
 import BookRoutes from "./Books/routes.js";
+import HomeRoutes from "./Home/routes.js";
 
 const CONNECTION_STRING =
   process.env.MONGO_CONNECTION_STRING ||
@@ -47,6 +48,7 @@ ReviewRoutes(app);
 FavoriteRoutes(app);
 FollowRoutes(app);
 BookRoutes(app);
+HomeRoutes(app);
 
 // Health check endpoint
 app.get("/api/health", (req, res) => {

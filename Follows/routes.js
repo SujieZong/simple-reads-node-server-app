@@ -80,12 +80,10 @@ export default function FollowRoutes(app) {
       const following = await dao.getFollowing(currentUser._id);
       res.json(following);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error fetching following list",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Error fetching following list",
+        error: error.message,
+      });
     }
   };
 
@@ -99,12 +97,38 @@ export default function FollowRoutes(app) {
       const followers = await dao.getFollowers(currentUser._id);
       res.json(followers);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error fetching followers list",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Error fetching followers list",
+        error: error.message,
+      });
+    }
+  };
+
+  // Get any user's following list (for profile pages)
+  const getPublicUserFollowing = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const following = await dao.getFollowing(userId);
+      res.json(following);
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching user following",
+        error: error.message,
+      });
+    }
+  };
+
+  // Get any user's followers list (for profile pages)
+  const getPublicUserFollowers = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const followers = await dao.getFollowers(userId);
+      res.json(followers);
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching user followers",
+        error: error.message,
+      });
     }
   };
 
@@ -113,4 +137,6 @@ export default function FollowRoutes(app) {
   app.delete("/api/follow/:userId", unfollowUser);
   app.get("/api/following", getFollowing);
   app.get("/api/followers", getFollowers);
+  app.get("/api/following/user/:userId", getPublicUserFollowing);
+  app.get("/api/followers/user/:userId", getPublicUserFollowers);
 }

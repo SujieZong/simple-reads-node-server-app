@@ -57,12 +57,10 @@ export default function FavoriteRoutes(app) {
 
       res.json({ message: "Removed from favorites successfully" });
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error removing from favorites",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Error removing from favorites",
+        error: error.message,
+      });
     }
   };
 
@@ -82,8 +80,25 @@ export default function FavoriteRoutes(app) {
     }
   };
 
+  // Get any user's favorites (for profile pages)
+  const getPublicUserFavorites = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const favorites = await dao.findUserFavorites(userId);
+      res.json(favorites);
+    } catch (error) {
+      res
+        .status(500)
+        .json({
+          message: "Error fetching user favorites",
+          error: error.message,
+        });
+    }
+  };
+
   // Routes
   app.post("/api/favorites/:bookId", addToFavorites);
   app.delete("/api/favorites/:bookId", removeFromFavorites);
   app.get("/api/favorites", getUserFavorites);
+  app.get("/api/favorites/user/:userId", getPublicUserFavorites);
 }

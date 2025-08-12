@@ -36,7 +36,6 @@ const bookSchema = new mongoose.Schema(
 );
 
 // Indexes for efficient querying
-bookSchema.index({ googleId: 1 }, { unique: true });
 bookSchema.index({ title: "text", authors: "text", description: "text" });
 bookSchema.index({ categories: 1 });
 bookSchema.index({ authors: 1 });

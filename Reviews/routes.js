@@ -1,0 +1,125 @@
+import * as dao from "./dao.js";
+
+export default function ReviewRoutes(app) {
+  const createReview = async (req, res) => {
+    try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const { book, rating, title, content } = req.body;
+
+      // Check if user has already reviewed this book
+      const existingReview = await dao.findUserReviewForBook(
+        currentUser._id,
+        book
+      );
+      if (existingReview) {
+        return res
+          .status(400)
+          .json({ message: "You have already reviewed this book" });
+      }
+
+      const reviewData = {
+        book,
+        user: currentUser._id,
+        rating,
+        title,
+        content,
+      };
+
+      const newReview = await dao.createReview(reviewData);
+      const populatedReview = await dao.findReviewById(newReview._id);
+
+      res.status(201).json(populatedReview);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error creating review", error: error.message });
+    }
+  };
+
+  const getReviewsForBook = async (req, res) => {
+    try {
+      const { bookId } = req.params;
+      const reviews = await dao.findReviewsByBook(bookId);
+      res.json(reviews);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error fetching reviews", error: error.message });
+    }
+  };
+
+  const updateReview = async (req, res) => {
+    try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const { reviewId } = req.params;
+      const review = await dao.findReviewById(reviewId);
+
+      if (!review) {
+        return res.status(404).json({ message: "Review not found" });
+      }
+
+      // Check if user owns the review
+      if (review.user._id.toString() !== currentUser._id) {
+        return res
+          .status(403)
+          .json({ message: "You can only update your own reviews" });
+      }
+
+      await dao.updateReview(reviewId, req.body);
+      const updatedReview = await dao.findReviewById(reviewId);
+
+      res.json(updatedReview);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error updating review", error: error.message });
+    }
+  };
+
+  const deleteReview = async (req, res) => {
+    try {
+      const currentUser = req.session["currentUser"];
+      if (!currentUser) {
+        return res.status(401).json({ message: "Authentication required" });
+      }
+
+      const { reviewId } = req.params;
+      const review = await dao.findReviewById(reviewId);
+
+      if (!review) {
+        return res.status(404).json({ message: "Review not found" });
+      }
+
+      // Check if user owns the review or is admin
+      if (
+        review.user._id.toString() !== currentUser._id &&
+        currentUser.role !== "admin"
+      ) {
+        return res
+          .status(403)
+          .json({ message: "You can only delete your own reviews" });
+      }
+
+      await dao.deleteReview(reviewId);
+      res.json({ message: "Review deleted successfully" });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error deleting review", error: error.message });
+    }
+  };
+
+  // Routes
+  app.post("/api/reviews", createReview);
+  app.get("/api/reviews/book/:bookId", getReviewsForBook);
+  app.put("/api/reviews/:reviewId", updateReview);
+  app.delete("/api/reviews/:reviewId", deleteReview);
+}

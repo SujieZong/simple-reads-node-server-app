@@ -1,4 +1,6 @@
 import * as dao from "./dao.js";
+import * as followDao from "../Follows/dao.js";
+import * as reviewDao from "../Reviews/dao.js";
 
 export default function UserRoutes(app) {
   const signup = async (req, res) => {
@@ -31,26 +33,30 @@ export default function UserRoutes(app) {
   };
 
   const signin = async (req, res) => {
+    console.log("📧 Signin attempt received:", req.body);
     try {
       const { username, password } = req.body;
+      console.log("🔍 Looking for user:", username, "with password:", password);
+
       const currentUser = await dao.findUserByCredentials(username, password);
+      console.log("🔎 Database query result:", currentUser);
 
       if (currentUser) {
+        console.log("✅ User found:", currentUser.username);
         // Update last login time
         await dao.updateUser(currentUser._id, { lastLoginAt: new Date() });
         req.session["currentUser"] = currentUser;
 
         // Remove password from response
-        const { password: userPassword, ...userResponse } =
-          currentUser.toObject();
+        const { password: userPassword, ...userResponse } = currentUser.toObject();
         res.json(userResponse);
       } else {
+        console.log("❌ Invalid credentials for:", username);
         res.status(401).json({ message: "Invalid credentials" });
       }
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error signing in", error: error.message });
+      console.error("💥 Signin error:", error);
+      res.status(500).json({ message: "Error signing in", error: error.message });
     }
   };
 
@@ -150,176 +156,62 @@ export default function UserRoutes(app) {
     }
   };
 
-  // Get user's reviews
-  const getUserReviews = async (req, res) => {
+  // NEW PROFILE-SPECIFIC ENDPOINTS
+  const getUserStats = async (req, res) => {
     try {
       const { userId } = req.params;
-      const ReviewDAO = await import("../Reviews/dao.js");
-      const reviews = await ReviewDAO.findReviewsByUser(userId);
-      res.json(reviews);
+
+      const followersCount = await followDao.getFollowersCount(userId);
+      const followingCount = await followDao.getFollowingCount(userId);
+
+      res.json({
+        followersCount,
+        followingCount
+      });
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error fetching user reviews", error: error.message });
+      res.status(500).json({ message: "Error fetching user stats", error: error.message });
     }
   };
 
-  // Get user's favorites
-  const getUserFavorites = async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const FavoriteDAO = await import("../Favorites/dao.js");
-      const favorites = await FavoriteDAO.findUserFavorites(userId);
-      res.json(favorites);
-    } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error fetching user favorites",
-          error: error.message,
-        });
-    }
-  };
-
-  // Get user's following list
-  const getUserFollowing = async (req, res) => {
-    try {
-      const { userId } = req.params;
-      const FollowDAO = await import("../Follows/dao.js");
-      const following = await FollowDAO.getFollowing(userId);
-      res.json(following);
-    } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error fetching user following",
-          error: error.message,
-        });
-    }
-  };
-
-  // Get user's followers list
   const getUserFollowers = async (req, res) => {
     try {
       const { userId } = req.params;
-      const FollowDAO = await import("../Follows/dao.js");
-      const followers = await FollowDAO.getFollowers(userId);
-      res.json(followers);
+
+      const followers = await followDao.getFollowers(userId);
+      const followerUsers = followers.map(follow => follow.follower);
+
+      res.json(followerUsers);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error fetching user followers",
-          error: error.message,
-        });
+      res.status(500).json({ message: "Error fetching followers", error: error.message });
     }
   };
 
-  // Check follow status
-  const checkFollowStatus = async (req, res) => {
+  const getUserFollowing = async (req, res) => {
     try {
-      const currentUser = req.session["currentUser"];
-      if (!currentUser) {
-        return res.json({ isFollowing: false });
-      }
-
-      const { userId } = req.params;
-      const FollowDAO = await import("../Follows/dao.js");
-      const isFollowing = await FollowDAO.checkIfFollowing(
-        currentUser._id,
-        userId
-      );
-
-      res.json({ isFollowing: !!isFollowing });
-    } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error checking follow status",
-          error: error.message,
-        });
-    }
-  };
-
-  // Check favorite status
-  const checkFavoriteStatus = async (req, res) => {
-    try {
-      const currentUser = req.session["currentUser"];
-      if (!currentUser) {
-        return res.json({ isFavorite: false });
-      }
-
-      const { bookId } = req.params;
-      const FavoriteDAO = await import("../Favorites/dao.js");
-      const isFavorite = await FavoriteDAO.checkIfFavorite(
-        currentUser._id,
-        bookId
-      );
-
-      res.json({ isFavorite: !!isFavorite });
-    } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error checking favorite status",
-          error: error.message,
-        });
-    }
-  };
-
-  // Admin: Delete user (admin only)
-  const deleteUser = async (req, res) => {
-    try {
-      const currentUser = req.session["currentUser"];
-      if (!currentUser || currentUser.role !== "admin") {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       const { userId } = req.params;
 
-      // Prevent admin from deleting themselves
-      if (currentUser._id === userId) {
-        return res
-          .status(400)
-          .json({ message: "Cannot delete your own account" });
-      }
+      const following = await followDao.getFollowing(userId);
+      const followingUsers = following.map(follow => follow.following);
 
-      await dao.deleteUser(userId);
-      res.json({ message: "User deleted successfully" });
+      res.json(followingUsers);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error deleting user", error: error.message });
+      res.status(500).json({ message: "Error fetching following", error: error.message });
     }
   };
 
-  // Admin: Update any user's profile (admin only)
-  const adminUpdateUser = async (req, res) => {
+  const getUserReviews = async (req, res) => {
     try {
-      const currentUser = req.session["currentUser"];
-      if (!currentUser || currentUser.role !== "admin") {
-        return res.status(403).json({ message: "Admin access required" });
-      }
-
       const { userId } = req.params;
-      const { password, ...updateData } = req.body;
 
-      if (password) {
-        updateData.password = password;
-      }
+      const reviews = await reviewDao.findReviewsByUser(userId);
 
-      await dao.updateUser(userId, updateData);
-      const updatedUser = await dao.findUserById(userId);
-
-      res.json(updatedUser);
+      res.json(reviews);
     } catch (error) {
-      res
-        .status(500)
-        .json({ message: "Error updating user", error: error.message });
+      res.status(500).json({ message: "Error fetching user reviews", error: error.message });
     }
   };
 
-  // Authentication routes
+  // AUTHENTICATION ROUTES
   app.post("/api/users/signup", signup);
   app.post("/api/users/signin", signin);
   app.post("/api/users/signout", signout);
@@ -328,17 +220,9 @@ export default function UserRoutes(app) {
   app.get("/api/profile/:userId", getUserProfile);
   app.get("/api/users", getAllUsers);
 
-  // Profile data routes
-  app.get("/api/profile/:userId/reviews", getUserReviews);
-  app.get("/api/profile/:userId/favorites", getUserFavorites);
-  app.get("/api/profile/:userId/following", getUserFollowing);
-  app.get("/api/profile/:userId/followers", getUserFollowers);
-
-  // Status check routes
-  app.get("/api/follow/status/:userId", checkFollowStatus);
-  app.get("/api/favorite/status/:bookId", checkFavoriteStatus);
-
-  // Admin routes
-  app.delete("/api/admin/users/:userId", deleteUser);
-  app.put("/api/admin/users/:userId", adminUpdateUser);
+  // PROFILE-SPECIFIC ROUTES
+  app.get("/api/users/:userId/stats", getUserStats);
+  app.get("/api/users/:userId/followers", getUserFollowers);
+  app.get("/api/users/:userId/following", getUserFollowing);
+  app.get("/api/users/:userId/reviews", getUserReviews);
 }

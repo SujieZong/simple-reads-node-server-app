@@ -4,7 +4,7 @@ const favoriteSchema = new mongoose.Schema(
   {
     _id: String,
     user: { type: String, required: true, ref: "UserModel" },
-    book: { type: String, required: true },
+    book: { type: String, required: true, ref: "BookModel" },
     addedAt: { type: Date, default: Date.now },
   },
   { collection: "favorites" }

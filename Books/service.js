@@ -1,4 +1,5 @@
 import axios from "axios";
+import * as dao from "./dao.js";
 
 const GOOGLE_BOOKS_API_URL = "https://www.googleapis.com/books/v1";
 
@@ -61,20 +62,37 @@ export const searchBooks = async (query, maxResults = 10) => {
 };
 
 /**
- * Get detailed information about a specific book by Google ID
+ * Get book from cache or fetch from Google Books API
  * @param {string} googleId - Google Books ID
- * @returns {Promise<Object>} Book object with detailed information
+ * @returns {Promise<Object>} Book object
  */
 export const getBookByGoogleId = async (googleId) => {
   try {
-    console.log(`Fetching book details for Google ID: ${googleId}`);
+    // First, try to get from local database
+    let book = await dao.findBookByGoogleId(googleId);
+
+    // If found and recently synced (within 24 hours), return cached version
+    if (
+      book &&
+      book.lastSyncedAt &&
+      new Date() - new Date(book.lastSyncedAt) < 24 * 60 * 60 * 1000
+    ) {
+      // Increment view count
+      await dao.incrementViewCount(googleId);
+      return book;
+    }
+
+    // Otherwise, fetch from Google Books API
+    console.log(
+      `Fetching book details from Google Books API for ID: ${googleId}`
+    );
 
     const response = await axios.get(
       `${GOOGLE_BOOKS_API_URL}/volumes/${googleId}`
     );
 
     const item = response.data;
-    const book = {
+    const bookData = {
       googleId: item.id,
       title: item.volumeInfo.title || "Unknown Title",
       authors: item.volumeInfo.authors || ["Unknown Author"],
@@ -87,31 +105,37 @@ export const getBookByGoogleId = async (googleId) => {
       categories: item.volumeInfo.categories || [],
       pageCount: item.volumeInfo.pageCount || 0,
       language: item.volumeInfo.language || "en",
-      averageRating: item.volumeInfo.averageRating || 0,
-      ratingsCount: item.volumeInfo.ratingsCount || 0,
-      previewLink: item.volumeInfo.previewLink || "",
-      infoLink: item.volumeInfo.infoLink || "",
       publisher: item.volumeInfo.publisher || "",
-      publishedDate: item.volumeInfo.publishedDate || "",
       isbn:
         item.volumeInfo.industryIdentifiers?.find((id) => id.type === "ISBN_13")
           ?.identifier ||
         item.volumeInfo.industryIdentifiers?.find((id) => id.type === "ISBN_10")
           ?.identifier ||
         "",
+      googleRating: item.volumeInfo.averageRating || 0,
+      googleRatingsCount: item.volumeInfo.ratingsCount || 0,
+      previewLink: item.volumeInfo.previewLink || "",
+      infoLink: item.volumeInfo.infoLink || "",
     };
 
-    console.log(`Successfully fetched book: ${book.title}`);
+    // Save to database (upsert)
+    book = await dao.createOrUpdateBook(bookData);
+
+    // Increment view count
+    await dao.incrementViewCount(googleId);
+
+    console.log(`Successfully cached book: ${book.title}`);
     return book;
   } catch (error) {
     console.error("Error fetching book by Google ID:", error.message);
-    if (error.response) {
-      console.error(
-        "API Response:",
-        error.response.status,
-        error.response.data
-      );
+
+    // If API fails but we have cached data, return it
+    const cachedBook = await dao.findBookByGoogleId(googleId);
+    if (cachedBook) {
+      console.log("Returning cached book due to API error");
+      return cachedBook;
     }
+
     throw new Error(`Failed to fetch book details: ${error.message}`);
   }
 };

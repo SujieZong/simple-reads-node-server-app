@@ -1,4 +1,4 @@
-export default [
+export default [ //sample book data for reference, can not strictly follow
   {
     _id: "book001",
     googleId: "8ov6CAAAQBAJ", // Google Books API ID

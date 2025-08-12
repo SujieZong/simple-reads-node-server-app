@@ -147,10 +147,40 @@ export default function ReviewRoutes(app) {
     }
   };
 
+  // Get 3 random reviews (public)
+  const getRandomReviews = async (req, res) => {
+    try {
+      // Use MongoDB aggregation for random sampling
+      const model = (await import("./model.js")).default;
+      const randomReviews = await model.aggregate([
+        { $sample: { size: 3 } },
+        {
+          $lookup: {
+            from: "users",
+            localField: "user",
+            foreignField: "_id",
+            as: "user",
+          },
+        },
+        { $unwind: "$user" },
+        { $project: { "user.password": 0 } },
+      ]);
+      res.json(randomReviews);
+    } catch (error) {
+      res
+        .status(500)
+        .json({
+          message: "Error fetching random reviews",
+          error: error.message,
+        });
+    }
+  };
+
   // Routes
   app.post("/api/reviews", createReview);
   app.get("/api/reviews/book/:bookId", getReviewsForBook);
   app.get("/api/reviews/user/:userId", getReviewsByUser);
+  app.get("/api/reviews/random", getRandomReviews);
   app.put("/api/reviews/:reviewId", updateReview);
   app.delete("/api/reviews/:reviewId", deleteReview);
 

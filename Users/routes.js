@@ -1,3 +1,33 @@
+// Get following count for a user
+const getFollowingCount = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const FollowDAO = await import("../Follows/dao.js");
+    const count = await FollowDAO.getFollowingCount(userId);
+    res.json({ followingCount: count });
+  } catch (error) {
+    res
+      .status(500)
+      .json({
+        message: "Error fetching following count",
+        error: error.message,
+      });
+  }
+};
+
+// Get follower count for a user
+const getFollowerCount = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const FollowDAO = await import("../Follows/dao.js");
+    const count = await FollowDAO.getFollowersCount(userId);
+    res.json({ followerCount: count });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching follower count", error: error.message });
+  }
+};
 import * as dao from "./dao.js";
 
 export default function UserRoutes(app) {
@@ -164,6 +194,37 @@ export default function UserRoutes(app) {
     }
   };
 
+  // Get reviews from all users that the given user is following
+  const getFollowingReviews = async (req, res) => {
+    try {
+      const { userId } = req.params;
+      const FollowDAO = await import("../Follows/dao.js");
+      const ReviewDAO = await import("../Reviews/dao.js");
+      // Get the list of users this user is following
+      const following = await FollowDAO.getFollowing(userId);
+      // following is an array of follow objects with .following populated
+      const followingUserIds = following.map(
+        (f) => f.following._id || f.following
+      );
+      // Fetch all reviews for all followed users
+      const allReviews = await Promise.all(
+        followingUserIds.map((uid) => ReviewDAO.findReviewsByUser(uid))
+      );
+      // Flatten the array of arrays
+      let reviews = allReviews.flat();
+      // Global sort by createdAt descending
+      reviews = reviews.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+      );
+      res.json(reviews);
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching following reviews",
+        error: error.message,
+      });
+    }
+  };
+
   // Get user's favorites
   const getUserFavorites = async (req, res) => {
     try {
@@ -172,12 +233,10 @@ export default function UserRoutes(app) {
       const favorites = await FavoriteDAO.findUserFavorites(userId);
       res.json(favorites);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error fetching user favorites",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Error fetching user favorites",
+        error: error.message,
+      });
     }
   };
 
@@ -189,12 +248,10 @@ export default function UserRoutes(app) {
       const following = await FollowDAO.getFollowing(userId);
       res.json(following);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error fetching user following",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Error fetching user following",
+        error: error.message,
+      });
     }
   };
 
@@ -206,12 +263,10 @@ export default function UserRoutes(app) {
       const followers = await FollowDAO.getFollowers(userId);
       res.json(followers);
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error fetching user followers",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Error fetching user followers",
+        error: error.message,
+      });
     }
   };
 
@@ -232,12 +287,10 @@ export default function UserRoutes(app) {
 
       res.json({ isFollowing: !!isFollowing });
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error checking follow status",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Error checking follow status",
+        error: error.message,
+      });
     }
   };
 
@@ -258,12 +311,10 @@ export default function UserRoutes(app) {
 
       res.json({ isFavorite: !!isFavorite });
     } catch (error) {
-      res
-        .status(500)
-        .json({
-          message: "Error checking favorite status",
-          error: error.message,
-        });
+      res.status(500).json({
+        message: "Error checking favorite status",
+        error: error.message,
+      });
     }
   };
 
@@ -330,9 +381,12 @@ export default function UserRoutes(app) {
 
   // Profile data routes
   app.get("/api/profile/:userId/reviews", getUserReviews);
+  app.get("/api/profile/:userId/following/reviews", getFollowingReviews);
   app.get("/api/profile/:userId/favorites", getUserFavorites);
   app.get("/api/profile/:userId/following", getUserFollowing);
   app.get("/api/profile/:userId/followers", getUserFollowers);
+  app.get("/api/profile/:userId/following/count", getFollowingCount);
+  app.get("/api/profile/:userId/followers/count", getFollowerCount);
 
   // Status check routes
   app.get("/api/follow/status/:userId", checkFollowStatus);

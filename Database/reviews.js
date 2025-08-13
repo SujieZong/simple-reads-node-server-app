@@ -1,7 +1,7 @@
 export default [
   {
     _id: "review001",
-    book: "book001", // The Three-Body Problem
+    book: "ZrNzAwAAQBAJ", // The Three-Body Problem
     user: "user003", // mike_writer
     rating: 5,
     title: "A Milestone in Chinese Science Fiction Literature",
@@ -12,7 +12,7 @@ export default [
   },
   {
     _id: "review002",
-    book: "book001", // The Three-Body Problem
+    book: "ZrNzAwAAQBAJ", // The Three-Body Problem
     user: "user001", // john_reader
     rating: 4,
     title: "A Paragon of Hard Science Fiction",
@@ -23,7 +23,7 @@ export default [
   },
   {
     _id: "review003",
-    book: "book002", // The Silent Patient
+    book: "tLdiDwAAQBAJ", // The Silent Patient
     user: "user004", // sarah_writer
     rating: 4,
     title: "A Brilliant Work of Psychological Suspense",
@@ -34,7 +34,7 @@ export default [
   },
   {
     _id: "review004",
-    book: "book002", // The Silent Patient
+    book: "tLdiDwAAQBAJ", // The Silent Patient
     user: "user006", // emma_reader
     rating: 5,
     title: "Completely Blown Away!",
@@ -45,7 +45,7 @@ export default [
   },
   {
     _id: "review005",
-    book: "book003", // The Catcher in the Rye
+    book: "FqSiDwAAQBAJ", // The Catcher in the Rye
     user: "user008", // lily_reader
     rating: 3,
     title: "Classic but Somewhat Dated",
@@ -56,7 +56,7 @@ export default [
   },
   {
     _id: "review006",
-    book: "book004", // To Kill a Mockingbird
+    book: "0NEbHGREK7cC", // To Kill a Mockingbird
     user: "user004", // sarah_writer
     rating: 5,
     title: "Eternal Classic, Profound Social Reflection",
@@ -67,7 +67,7 @@ export default [
   },
   {
     _id: "review007",
-    book: "book005", // Dune
+    book: "B1hSG45JCX4C", // Dune
     user: "user007", // david_writer
     rating: 5,
     title: "Immortal Masterpiece of Science Fiction Literature",
@@ -78,7 +78,7 @@ export default [
   },
   {
     _id: "review008",
-    book: "book005", // Dune
+    book: "B1hSG45JCX4C", // Dune
     user: "user001", // john_reader
     rating: 4,
     title: "Grand but Slightly Complex",
@@ -89,7 +89,7 @@ export default [
   },
   {
     _id: "review009",
-    book: "book006", // 1984
+    book: "kotPYEqx7kMC", // 1984
     user: "user003", // mike_writer
     rating: 5,
     title: "Prophetic Dystopian Classic",
@@ -100,7 +100,7 @@ export default [
   },
   {
     _id: "review010",
-    book: "book006", // 1984
+    book: "kotPYEqx7kMC", // 1984
     user: "user002", // alice_reader
     rating: 4,
     title: "Heavy but Necessary Reading",

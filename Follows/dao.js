@@ -29,3 +29,8 @@ export const getFollowingCount = (userId) =>
 
 export const getFollowersCount = (userId) =>
   model.countDocuments({ following: userId });
+
+export const deleteUserFollows = (userId) =>
+  model.deleteMany({
+    $or: [{ follower: userId }, { following: userId }]
+  });

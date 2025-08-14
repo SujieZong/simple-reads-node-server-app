@@ -23,3 +23,6 @@ export const checkIfFavorite = (userId, bookId) =>
 
 export const getFavoriteCount = (bookId) =>
   model.countDocuments({ book: bookId });
+
+export const deleteUserFavorites = (userId) =>
+  model.deleteMany({ user: userId });

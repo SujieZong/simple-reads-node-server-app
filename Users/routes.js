@@ -6,12 +6,10 @@ const getFollowingCount = async (req, res) => {
     const count = await FollowDAO.getFollowingCount(userId);
     res.json({ followingCount: count });
   } catch (error) {
-    res
-      .status(500)
-      .json({
-        message: "Error fetching following count",
-        error: error.message,
-      });
+    res.status(500).json({
+      message: "Error fetching following count",
+      error: error.message,
+    });
   }
 };
 
@@ -334,6 +332,14 @@ export default function UserRoutes(app) {
           .status(400)
           .json({ message: "Cannot delete your own account" });
       }
+
+      // Delete user's favorites
+      const FavoriteDAO = await import("../Favorites/dao.js");
+      await FavoriteDAO.deleteUserFavorites(userId);
+
+      // Delete user's follows (both following and followers)
+      const FollowDAO = await import("../Follows/dao.js");
+      await FollowDAO.deleteUserFollows(userId);
 
       await dao.deleteUser(userId);
       res.json({ message: "User deleted successfully" });

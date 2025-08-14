@@ -98,10 +98,10 @@ export default function ReviewRoutes(app) {
         return res.status(404).json({ message: "Review not found" });
       }
 
-      // Check if user owns the review or is admin
+      // Check if user owns the review 
       if (
         review.user._id.toString() !== currentUser._id &&
-        currentUser.role !== "admin"
+        (currentUser.role == "reader" || currentUser.role === "admin")
       ) {
         return res
           .status(403)

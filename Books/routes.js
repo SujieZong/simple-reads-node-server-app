@@ -210,11 +210,32 @@ export default function BookRoutes(app) {
     });
   };
 
+  /**
+   * Get top 5 books by reviews + favorites (with fallback)
+   * GET /api/books/top-engagement
+   */
+  const getTopBooksByEngagement = async (req, res) => {
+    try {
+      const books = await booksService.getTopBooksByEngagement();
+      res.json({ success: true, count: books.length, books });
+    } catch (error) {
+      console.error("Route error - getTopBooksByEngagement:", error.message);
+      res
+        .status(500)
+        .json({
+          success: false,
+          message: "Error fetching top books",
+          error: error.message,
+        });
+    }
+  };
+
   // Define routes
   app.get("/api/books/help", getApiHelp);
   app.get("/api/books/search", searchBooks);
   app.get("/api/books/author/:authorName", searchBooksByAuthor);
   app.get("/api/books/category/:categoryName", searchBooksByCategory);
+  app.get("/api/books/top-engagement", getTopBooksByEngagement);
   app.get("/api/books/:googleId", getBookDetails); // This should be last to avoid conflicts
 
   console.log("Book routes initialized ✓");

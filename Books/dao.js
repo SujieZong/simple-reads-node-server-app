@@ -101,3 +101,4 @@ export const getTopRatedBooks = (limit = 10) =>
 
 export const getRecentlyAddedBooks = (limit = 10) =>
   model.find().sort({ createdAt: -1 }).limit(limit);
+

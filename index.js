@@ -1,5 +1,6 @@
 import express from "express";
 import cors from "cors";
+import "dotenv/config";
 import session from "express-session";
 import mongoose from "mongoose";
 
@@ -21,6 +22,7 @@ app.use(
   cors({
     credentials: true,
     origin: process.env.NETLIFY_URL || "http://localhost:5173",
+    
   })
 );
 

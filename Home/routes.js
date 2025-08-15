@@ -149,5 +149,28 @@ export default function HomeRoutes(app) {
   app.get("/api/home", getHomeData);
   app.get("/api/home/trending", getTrendingBooks);
 
+  /**
+   * Get credits information
+   * GET /api/home/credits
+   */
+  app.get("/api/home/credits", (req, res) => {
+    res.json({
+      credits: {
+        authors: "Wei-Yun Feng, Sujie Zong",
+        course: "5610 Summer2 2025",
+        links: [
+          {
+            label: "React App Repository",
+            url: "https://github.com/Nimodipine/simple-reads-react-server-app.git",
+          },
+          {
+            label: "Node Server Repository",
+            url: "https://github.com/SujieZong/simple-reads-node-server-app.git",
+          },
+        ],
+      },
+    });
+  });
+
   console.log("Home routes initialized ✓");
 }

@@ -1,217 +1,352 @@
-# SimpleReads - 轻量级书评社区
+# SimpleReads - Book Review Community Platform
 
-## 项目概述
+## Project Overview
 
-SimpleReads 是一个基于 Node.js 和 Express 的书评社区平台，旨在为读者提供一个分享和发现优质书评的空间。
+SimpleReads is a Node.js and Express-based book review community platform that provides readers with a space to discover, review, and share great books. The platform integrates with Google Books API to provide comprehensive book information and creates a social environment for book enthusiasts.
 
-## 核心功能
+## Core Features
 
-### 用户系统
+### User System
+- **Three User Roles**: Reader, Writer, Admin
+- **Authentication**: Complete signup/signin system with session management
+- **Profile Management**: Comprehensive user profiles with statistics
+- **Permission Control**: Role-based access control for different features
 
-- **三种用户角色**：Reader（读者）、Writer（书评人）、Admin（管理员）
-- **权限管理**：分级权限控制，确保数据安全
-- **个人资料**：完整的用户档案管理
+### Book Review System
+- **Google Books Integration**: Search and retrieve book information
+- **Review Publishing**: Users can write detailed book reviews with ratings (1-5 stars)
+- **Professional Recognition**: Writer users get special badges and can showcase expertise areas
+- **Review Management**: Full CRUD operations for reviews
 
-### 书评系统
+### Social Features
+- **Favorites System**: Users can favorite books they love
+- **Follow System**: Follow other users to see their reviews
+- **Personalized Feed**: Get reviews from followed users
+- **Engagement Tracking**: Track popular books by review and favorite counts
 
-- **图书搜索**：集成 Google Books API
-- **书评发布**：支持评分和详细评论
-- **专业标识**：Writer 用户的专业认证
+### Administrative Features
+- **User Management**: Admin can manage all user accounts
+- **Content Moderation**: Admins can manage reviews and user content
+- **Analytics**: View platform statistics and user engagement
 
-### 社交功能
+## Technology Stack
 
-- **收藏系统**：收藏喜欢的书籍
-- **关注系统**：关注感兴趣的用户
-- **动态推送**：个性化内容推荐
+### Backend
+- **Node.js** - Runtime environment
+- **Express.js** - Web application framework
+- **MongoDB** - Primary database with Mongoose ODM
+- **ES6+ JavaScript** - Modern JavaScript features
 
-## 技术栈
+### Authentication & Security
+- **Express Session** - Session management
+- **UUID** - Unique ID generation
+- **CORS** - Cross-origin resource sharing
+- **bcrypt** - Password hashing (ready for implementation)
 
-### 后端
+### External APIs
+- **Google Books API** - Book information and search functionality
+- **Axios** - HTTP client for API requests
 
-- **Node.js** - 运行环境
-- **Express** - Web 框架
-- **JavaScript ES6+** - 编程语言
+### Development Tools
+- **Nodemon** - Development auto-restart
+- **Git** - Version control
 
-### 数据存储
-
-- **内存数据库** - 开发阶段使用 JSON 文件
-- **MongoDB** - 生产环境（规划中）
-
-### 第三方 API
-
-- **Google Books API** - 图书信息获取
-
-### 开发工具
-
-- **Nodemon** - 开发时自动重启
-- **Git** - 版本控制
-
-## 项目结构
+## Project Structure
 
 ```
 simplereads-node-server-app/
-├── Database/               # 数据层
-│   ├── index.js           # 数据导出入口
-│   ├── users.js           # 用户数据
-│   ├── books.js           # 书籍数据
-│   ├── reviews.js         # 书评数据
-│   ├── favorites.js       # 收藏数据
-│   ├── follows.js         # 关注数据
-│   ├── utils.js           # 数据操作工具
-│   └── README.md          # 数据库文档
-├── routes/                # 路由层（待创建）
-├── middleware/            # 中间件（待创建）
-├── utils/                 # 工具函数（待创建）
-├── index.js              # 应用入口
-├── test-database.js      # 数据库测试
-├── package.json          # 项目配置
-├── .env.example          # 环境变量示例
-├── .gitignore            # Git忽略文件
-└── README.md             # 项目文档
+├── Books/                  # Book module
+│   ├── dao.js             # Database access layer
+│   ├── model.js           # MongoDB model
+│   ├── routes.js          # API routes
+│   ├── schema.js          # Database schema
+│   └── service.js         # Business logic & Google Books API integration
+├── Users/                  # User module
+│   ├── dao.js             # User data access
+│   ├── model.js           # User MongoDB model
+│   ├── routes.js          # User API routes
+│   └── schema.js          # User schema
+├── Reviews/                # Review module
+│   ├── dao.js             # Review data access
+│   ├── model.js           # Review MongoDB model
+│   ├── routes.js          # Review API routes
+│   └── schema.js          # Review schema
+├── Favorites/              # Favorites module
+│   ├── dao.js             # Favorites data access
+│   ├── model.js           # Favorites MongoDB model
+│   ├── routes.js          # Favorites API routes
+│   └── schema.js          # Favorites schema
+├── Follows/                # Follow system module
+│   ├── dao.js             # Follow data access
+│   ├── model.js           # Follow MongoDB model
+│   ├── routes.js          # Follow API routes
+│   └── schema.js          # Follow schema
+├── Home/                   # Home page content
+│   └── routes.js          # Home API routes
+├── Database/               # Static data & utilities (development)
+│   ├── users.js           # Sample user data
+│   ├── books.js           # Sample book data
+│   ├── reviews.js         # Sample review data
+│   ├── favorites.js       # Sample favorites data
+│   ├── follows.js         # Sample follows data
+│   ├── utils.js           # Data utility functions
+│   └── index.js           # Data export
+├── index.js               # Application entry point
+├── seed-database.js       # Database seeding script
+├── test-*.js              # Various test scripts
+└── package.json           # Project configuration
 ```
 
-## 数据模型
+## Data Models
 
-### 用户权限层级
+### User Schema
+```javascript
+{
+  _id: String,              // Unique user ID
+  username: String,         // Unique username
+  email: String,            // Unique email
+  password: String,         // Hashed password
+  role: String,             // 'reader', 'writer', 'admin'
+  avatar: String,           // Avatar image URL
+  bio: String,              // User biography
+  writerBadge: Boolean,     // Professional writer badge
+  expertise: [String],      // Areas of expertise (writers only)
+  createdAt: Date,          // Account creation date
+  lastLoginAt: Date         // Last login timestamp
+}
+```
 
-1. **Reader** - 基础用户，可管理个人内容
-2. **Writer** - 专业书评人，拥有认证标识
-3. **Admin** - 系统管理员，拥有全部权限
+### Book Schema
+```javascript
+{
+  _id: String,              // Google Books ID
+  googleId: String,         // Google Books API identifier
+  title: String,            // Book title
+  authors: [String],        // List of authors
+  thumbnail: String,        // Cover image URL
+  description: String,      // Book description
+  publishedDate: String,    // Publication date
+  categories: [String],     // Book categories/genres
+  pageCount: Number,        // Number of pages
+  language: String,         // Book language
+  // ... additional Google Books fields
+  viewCount: Number,        // Internal view tracking
+  favoriteCount: Number,    // Internal favorite count
+  internalRating: Number,   // Average rating from reviews
+  createdAt: Date,          // Record creation date
+  updatedAt: Date           // Last update timestamp
+}
+```
 
-### 核心实体
+### Review Schema
+```javascript
+{
+  _id: String,              // Review ID
+  book: String,             // Book Google ID (reference)
+  user: String,             // User ID (reference)
+  rating: Number,           // Rating (1-5)
+  title: String,            // Review title
+  content: String,          // Review content
+  createdAt: Date,          // Creation timestamp
+  updatedAt: Date           // Last update timestamp
+}
+```
 
-- **User** - 用户信息
-- **Book** - 图书信息（来源于 Google Books）
-- **Review** - 书评内容
-- **Favorite** - 收藏关系
-- **Follow** - 关注关系
+### Favorite Schema
+```javascript
+{
+  _id: String,              // Favorite record ID
+  user: String,             // User ID (reference)
+  book: String,             // Book Google ID (reference)
+  addedAt: Date             // Favorite timestamp
+}
+```
 
-## API 设计
+### Follow Schema
+```javascript
+{
+  _id: String,              // Follow record ID
+  follower: String,         // Follower user ID
+  following: String,        // Following user ID
+  createdAt: Date           // Follow timestamp
+}
+```
 
-### 认证路由
+## API Endpoints
 
-- `POST /api/auth/register` - 用户注册
-- `POST /api/auth/login` - 用户登录
-- `POST /api/auth/logout` - 用户登出
-- `GET /api/auth/check` - 检查登录状态
+### Authentication Routes
+- `POST /api/users/signup` - User registration
+- `POST /api/users/signin` - User login
+- `POST /api/users/signout` - User logout
+- `GET /api/profile` - Get current user profile
 
-### 用户路由
+### User Management Routes
+- `GET /api/profile/:userId` - Get user profile by ID
+- `PUT /api/profile` - Update own profile
+- `GET /api/users` - Get all users (with filters)
+- `GET /api/profile/:userId/reviews` - Get user's reviews
+- `GET /api/profile/:userId/favorites` - Get user's favorites
+- `GET /api/profile/:userId/following` - Get user's following list
+- `GET /api/profile/:userId/followers` - Get user's followers
 
-- `GET /api/profile` - 获取当前用户资料
-- `PUT /api/profile` - 更新个人资料
-- `GET /api/profile/:userId` - 查看他人资料
+### Book Routes
+- `GET /api/books/search?q={query}` - Search books
+- `GET /api/books/:googleId` - Get book details
+- `GET /api/books/author/:authorName` - Search books by author
+- `GET /api/books/category/:categoryName` - Search books by category
+- `GET /api/books/top-engagement` - Get popular books
+- `GET /api/books/help` - API documentation
 
-### 图书路由
+### Review Routes
+- `POST /api/reviews` - Create review
+- `GET /api/reviews/book/:bookId` - Get reviews for a book
+- `GET /api/reviews/user/:userId` - Get reviews by user
+- `GET /api/reviews/random` - Get random reviews (homepage)
+- `PUT /api/reviews/:reviewId` - Update review
+- `DELETE /api/reviews/:reviewId` - Delete review
 
-- `GET /api/search?q={keyword}` - 搜索图书
-- `GET /api/books/:googleId` - 获取图书详情
+### Social Features
+- `POST /api/favorites/:bookId` - Add book to favorites
+- `DELETE /api/favorites/:bookId` - Remove from favorites
+- `GET /api/favorites` - Get user's favorites
+- `POST /api/follow/:userId` - Follow user
+- `DELETE /api/follow/:userId` - Unfollow user
+- `GET /api/following` - Get following list
+- `GET /api/followers` - Get followers list
 
-### 书评路由
+### Home & Content Routes
+- `GET /api/home` - Get personalized home content
+- `GET /api/home/trending` - Get trending books
+- `GET /api/home/credits` - Get project credits
+- `GET /api/health` - Server health check
 
-- `POST /api/reviews` - 发布书评
-- `GET /api/reviews/book/:bookId` - 获取图书书评
-- `PUT /api/reviews/:reviewId` - 更新书评
-- `DELETE /api/reviews/:reviewId` - 删除书评
+### Admin Routes (Admin Only)
+- `GET /api/admin/reviews` - Get all reviews
+- `DELETE /api/admin/users/:userId` - Delete user
+- `PUT /api/admin/users/:userId` - Update any user
 
-### 社交路由
+## Installation & Setup
 
-- `POST /api/favorites/:bookId` - 收藏图书
-- `DELETE /api/favorites/:bookId` - 取消收藏
-- `GET /api/favorites` - 我的收藏
-- `POST /api/follow/:userId` - 关注用户
-- `DELETE /api/follow/:userId` - 取消关注
+### Prerequisites
+- Node.js (v14 or higher)
+- MongoDB (local or cloud instance)
+- Git
 
-## 开发计划
+### Installation Steps
 
-### Day 1-2: 后端基础
+1. **Clone the repository**
+```bash
+git clone https://github.com/SujieZong/simple-reads-node-server-app.git
+cd simple-reads-node-server-app
+```
 
-- [x] 数据库模型设计
-- [x] 样本数据创建
-- [ ] 基础 Express 应用搭建
-- [ ] 认证中间件实现
-
-### Day 3-4: API 开发
-
-- [ ] 用户管理 API
-- [ ] 书评 CRUD API
-- [ ] Google Books API 集成
-- [ ] 社交功能 API
-
-### Day 5: 前端基础
-
-- [ ] React 应用搭建
-- [ ] 核心页面开发
-- [ ] 用户界面实现
-
-### Day 6: 集成与部署
-
-- [ ] 前后端联调
-- [ ] 功能测试
-- [ ] 部署准备
-
-## 快速开始
-
-### 安装依赖
-
+2. **Install dependencies**
 ```bash
 npm install
 ```
 
-### 启动开发服务器
-
-```bash
-npm run dev
-```
-
-### 测试数据库
-
-```bash
-node test-database.js
-```
-
-### 配置环境变量
-
+3. **Environment Configuration**
 ```bash
 cp .env.example .env
-# 编辑.env文件，填入实际配置
+# Edit .env file with your configuration:
+# MONGO_CONNECTION_STRING=mongodb://127.0.0.1:27017/simplereads
+# SESSION_SECRET=your-secret-key
+# NETLIFY_URL=http://localhost:5173 (for frontend)
 ```
 
-## 数据库测试结果
+4. **Database Setup**
+```bash
+# Seed the database with sample data
+npm run seed
+```
 
-当前样本数据包含：
+5. **Start the server**
+```bash
+# Development mode (with auto-restart)
+npm run dev
 
-- 8 个用户（4 个 Reader + 3 个 Writer + 1 个 Admin）
-- 6 本经典图书
-- 10 条书评
-- 14 个收藏记录
-- 12 个关注关系
+# Production mode
+npm start
+```
 
-权限系统测试通过：
+6. **Verify installation**
+```bash
+# Test database connectivity
+node test-database.js
 
-- ✓ Reader 可以编辑自己的资料
-- ✗ Reader 不能编辑他人资料
-- ✓ Admin 可以编辑任何用户资料
+# Test API endpoints
+node test-api.js
 
-## 注意事项
+# Test Books API specifically
+node test-books-api.js
+```
 
-1. **安全性**：生产环境需要使用强密码哈希和安全的 session 密钥
-2. **API 限制**：Google Books API 有调用频率限制
-3. **扩展性**：当前使用内存数据库，后续需迁移到 MongoDB
-4. **性能**：大量数据时需要添加分页和缓存机制
+## Development Features
 
-## 贡献指南
+### Database Seeding
+The project includes comprehensive sample data:
+- 8 users across all roles (readers, writers, admin)
+- Sample books from Google Books API
+- 10 sample reviews with realistic content
+- Follow relationships between users
+- Favorite books for each user
 
-1. Fork 项目
-2. 创建特性分支
-3. 提交更改
-4. 推送到分支
-5. 创建 Pull Request
+### Testing Scripts
+- `test-database.js` - Tests database operations and permissions
+- `test-api.js` - Basic API endpoint testing
+- `test-books-api.js` - Comprehensive Books API testing
 
-## 许可证
+### Error Handling
+- Comprehensive error handling across all routes
+- Graceful API failures with fallback mechanisms
+- User-friendly error messages
+- Detailed logging for debugging
 
-ISC License
+## Deployment Considerations
 
-## 联系方式
+### Environment Variables
+```bash
+MONGO_CONNECTION_STRING=your-mongodb-connection
+SESSION_SECRET=strong-session-secret
+NETLIFY_URL=your-frontend-url
+NODE_ENV=production
+PORT=4000
+NODE_SERVER_DOMAIN=your-domain
+```
 
-- 作者：Sujie Zong
-- 项目：CS5610 Web Development Final Project
+### Production Optimizations
+- Session configuration for production environment
+- CORS configuration for frontend deployment
+- MongoDB connection optimization
+- Error handling and logging
+
+## Integration with Frontend
+
+This server is designed to work with the SimpleReads React frontend:
+- **React Repository**: https://github.com/Nimodipine/simple-reads-react-server-app.git
+- **CORS configured** for seamless frontend integration
+- **Session-based authentication** maintained across requests
+- **RESTful API design** for easy frontend consumption
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit changes (`git commit -am 'Add new feature'`)
+4. Push to branch (`git push origin feature/new-feature`)
+5. Create Pull Request
+
+## Course Information
+
+**Course**: CS5610 Web Development Summer2 2025  
+**Authors**: Wei-Yun Feng, Sujie Zong  
+**License**: ISC  
+
+## Links
+
+- **Node Server Repository**: https://github.com/SujieZong/simple-reads-node-server-app.git
+- **React Frontend Repository**: https://github.com/Nimodipine/simple-reads-react-server-app.git
+
+---
+
+*SimpleReads - Building a community around the love of reading* 📚
